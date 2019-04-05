@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="stdout" class="ng.lib.logging.ConsoleAppender">
+		<param name="Target" value="System.out"></param>
+		<layout class="ng.log.PatternLayout">
+			<param name="ConversionPattern" value="%d %5p %c{1} - %m%n"></param>
+		</layout>
+	</appender>
+	<appender name="file" class="ng.lib.logging.FileAppender">
+		<param name="Append" value="true"></param>
+		<param name="Encoding" value="UTF-8"/>
+		<param name="File" value="logs/test.log"></param>
+		<param name="MaxFileSize" value="5MB"></param>
+		<layout class="ng.lib.logging.PatternLayout">
+			<param name="ConversionPattern" value="[%d][%5p][%l][%r][%m]%n"></param>
+		</layout>
+	</appender>
+	<category name="ng.log.test">
+		<priority value ="trace"></priority>
+		<appender-ref ref="file"></appender-ref>
+	</category>
+	<root>
+		<priority value ="debug"></priority>
+		<appender-ref ref="stdout"></appender-ref>
+	</root>
+</log4j:configuration>
