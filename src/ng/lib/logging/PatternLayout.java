@@ -1,8 +1,30 @@
 /*******************************************************************************
- * PatternLayout.java : The NextGraFix Application Library for JVM Platform
- * 
- * Copyright (c) 2016, Akihisa Yasuda
+ * PatternLayout.java
+ *
+ * Copyright (c) 2019, Akihisa Yasuda
  * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 
 package ng.lib.logging;
@@ -27,22 +49,22 @@ import org.w3c.dom.Node;
  */
 public class PatternLayout extends Layout
 	{
-	/** */ private List<Map<String, String>> patternList = null;
-	/** */ private static final String KEY_CATEGORY		= "CATEGORY";
-	/** */ private static final String KEY_CLASS		= "CLASS";
-	/** */ private static final String KEY_DATE			= "DATE";
-	/** */ private static final String KEY_FILE			= "FILE";
-	/** */ private static final String KEY_INTERVAL		= "INTERVAL";
-	/** */ private static final String KEY_LINE			= "LINE";
-	/** */ private static final String KEY_LINE_FEED	= "LINE_FEED";
-	/** */ private static final String KEY_LACATION		= "LOCATION";
-	/** */ private static final String KEY_MESSAGE		= "MESSAGE";
-	/** */ private static final String KEY_METHOD		= "METHOD";
-	/** */ private static final String KEY_NDC			= "NDC";
-	/** */ private static final String KEY_PERCENT		= "PERCENT";
-	/** */ private static final String KEY_PRIORITY		= "PRIORITY";
-	/** */ private static final String KEY_STRING		= "STRING";
-	/** */ private static final String KEY_THREAD		= "THREAD";
+	/** */ private List<Map<String, String>> patternList	= null;
+	/** */ private static final String KEY_CATEGORY			= "CATEGORY";
+	/** */ private static final String KEY_CLASS			= "CLASS";
+	/** */ private static final String KEY_DATE				= "DATE";
+	/** */ private static final String KEY_FILE				= "FILE";
+	/** */ private static final String KEY_INTERVAL			= "INTERVAL";
+	/** */ private static final String KEY_LINE				= "LINE";
+	/** */ private static final String KEY_LINE_FEED		= "LINE_FEED";
+	/** */ private static final String KEY_LACATION			= "LOCATION";
+	/** */ private static final String KEY_MESSAGE			= "MESSAGE";
+	/** */ private static final String KEY_METHOD			= "METHOD";
+	/** */ private static final String KEY_NDC				= "NDC";
+	/** */ private static final String KEY_PERCENT			= "PERCENT";
+	/** */ private static final String KEY_PRIORITY			= "PRIORITY";
+	/** */ private static final String KEY_STRING			= "STRING";
+	/** */ private static final String KEY_THREAD			= "THREAD";
 
 
 
@@ -470,10 +492,10 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param format					layout format for logging
-	 * @param index					index of layout format
-	 * @param option					format option
-	 * @return						
+	 * @param format		layout format for logging
+	 * @param index			index of layout format
+	 * @param option		format option
+	 * @return				
 	 * @throws Exception	
 	 */
 	private final int setCategoryNamePattern (final String format, int index, final String option) throws Exception
@@ -542,10 +564,10 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param format					layout format for logging
-	 * @param index					index of layout format
-	 * @param option					format option
-	 * @return						
+	 * @param format		layout format for logging
+	 * @param index			index of layout format
+	 * @param option		format option
+	 * @return				
 	 * @throws Exception	
 	 */
 	private final int setClassNamePattern (final String format, int index, final String option) throws Exception
@@ -614,10 +636,10 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param format					layout format for logging
-	 * @param index					index of layout format
-	 * @param option					format option
-	 * @return						
+	 * @param format		layout format for logging
+	 * @param index			index of layout format
+	 * @param option		format option
+	 * @return				
 	 * @throws Exception	
 	 */
 	private final int setDatePattern (final String format, int index, final String option) throws Exception
@@ -707,7 +729,7 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param option					format option
+	 * @param option		format option
 	 * @throws Exception	
 	 */
 	private final void setFileNamePattern (final String option) throws Exception
@@ -728,7 +750,7 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param option					format option
+	 * @param option		format option
 	 * @throws Exception	
 	 */
 	private final void setIntervalPattern (final String option) throws Exception
@@ -747,8 +769,8 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param option					format option
-	 * @return						
+	 * @param option		format option
+	 * @return				
 	 * @throws Exception	
 	 */
 	private final void setLineFeedPattern (final String option) throws Exception
@@ -767,7 +789,7 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param option					format option
+	 * @param option		format option
 	 * @throws Exception	
 	 */
 	private final void setLineNumberPattern (final String option) throws Exception
@@ -788,7 +810,7 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param option					format option
+	 * @param option		format option
 	 * @throws Exception	
 	 */
 	private final void setLocationPattern (final String option) throws Exception
@@ -809,7 +831,7 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param option					format option
+	 * @param option		format option
 	 * @throws Exception	
 	 */
 	private final void setMessagePattern (final String option) throws Exception
@@ -828,10 +850,10 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param format					layout format for logging
-	 * @param index					index of layout format
-	 * @param option					format option
-	 * @return						
+	 * @param format		layout format for logging
+	 * @param index			index of layout format
+	 * @param option		format option
+	 * @return				
 	 * @throws Exception	
 	 */
 	private final int setMethodNamePattern (final String format, int index, final String option) throws Exception
@@ -902,7 +924,7 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param option					format option
+	 * @param option		format option
 	 * @throws Exception	
 	 */
 	private final void setNDCPattern (final String option) throws Exception
@@ -920,7 +942,7 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param option					format option
+	 * @param option		format option
 	 * @throws Exception	
 	 */
 	private final void setPriorityPattern (final String option) throws Exception
@@ -938,7 +960,7 @@ public class PatternLayout extends Layout
 
 	/**
 	 * 
-	 * @param option					format option
+	 * @param option		format option
 	 * @throws Exception	
 	 */
 	private final void setThreadNamePattern (final String option) throws Exception
