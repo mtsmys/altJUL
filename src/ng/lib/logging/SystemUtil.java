@@ -293,14 +293,17 @@ public class SystemUtil
 		//========== Variable ==========
 		String filePath = null;
 		int filePathLength = 0;
+		File directory = null;
 
 		//===== Check argument =====
 		if (file!=null)
 			{
-			//===== Get parent directory =====
+			//===== Get file path =====
 			if ((filePath=file.getCanonicalPath())!=null && (filePathLength=filePath.length())>0)
 				{
-				return new File(filePath.substring(0, filePathLength-(file.getName().length()+ng.lib.logging.SystemUtil.getFileSeparator().length())));
+				//===== Get parent directory =====
+				directory = new File(filePath.substring(0, filePathLength-(file.getName().length()+ng.lib.logging.SystemUtil.getFileSeparator().length())));
+				return directory;
 				}
 			//===== Error handling =====
 			else

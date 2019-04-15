@@ -57,24 +57,6 @@ public abstract class Appender extends Handler
 
 	/**
 	 * 
-	 * @param flag
-	 */
-	public void setLocation (final boolean flag)
-		{
-		if (flag==true)
-			{
-			this.enableLocation = true;
-			}
-		else
-			{
-			this.enableLocation = false;
-			}
-		return;
-		}
-
-
-	/**
-	 * 
 	 * @return
 	 */
 	public boolean isEnabledLocation ()
@@ -95,7 +77,7 @@ public abstract class Appender extends Handler
 	/**
 	 * 
 	 * @param paramNode
-	 * @throws Exception
+	 * @throws Exception	General error
 	 */
 	public void parseParamNode (final Node paramNode) throws Exception
 		{
@@ -134,7 +116,7 @@ public abstract class Appender extends Handler
 	/**
 	 * 
 	 * @param layout
-	 * @throws Exception
+	 * @throws Exception	General error
 	 */
 	public void setLayout (final Layout layout) throws Exception
 		{
@@ -162,6 +144,24 @@ public abstract class Appender extends Handler
 			{
 			throw e;
 			}
+		}
+
+
+	/**
+	 * 
+	 * @param flag
+	 */
+	public void setLocation (final boolean flag)
+		{
+		if (flag==true)
+			{
+			this.enableLocation = true;
+			}
+		else
+			{
+			this.enableLocation = false;
+			}
+		return;
 		}
 
 

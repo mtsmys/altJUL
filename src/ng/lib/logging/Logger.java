@@ -30,7 +30,6 @@
 package ng.lib.logging;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
@@ -64,14 +63,15 @@ public class Logger
 
 	/**
 	 * Constructor.<br>
-	 * Generate new logger named by argument "loggerName".<br>
+	 * Create new logger object named by argument "loggerName".<br>
 	 * 
 	 * @param loggerName	The name of generated logger
 	 * @throws Exception	General error
 	 */
 	public Logger (final String loggerName) throws Exception
 		{
-		this.setLogger(loggerName);
+		//===== Generate new logger object =====
+		this.setLogger(this.createNewLogger(loggerName));
 		return;
 		}
 
@@ -907,8 +907,6 @@ public class Logger
 			{
 			//===== Set appender into java.util.logging.Logger =====
 			this.appender = appender;
-			this.getLogger().addHandler(this.appender);
-			//===== Terminate procedure =====
 			return;
 			}
 		//===== Argument error =====
@@ -922,101 +920,51 @@ public class Logger
 	/**
 	 * Set the logging configuration file in Java class path.<br>
 	 * 
-	 * @param xmlConfigurationFile	a configuration file name in Java class path
-	 * @throws Exception			
+	 * @param configurationFile	A configuration file name in Java class path
+	 * @throws Exception		General error
 	 */
-	public void setConfigurationFile (final String xmlConfigurationFile) throws Exception
+	public void setConfigurationFile (final String configurationFilePath) throws Exception
 		{
 		//========== Variable ==========
-		File xmlFile = null;
-		Document document = null;
-		NodeList loggerNodeList = null;
-		NodeList appenderNodeList = null;
-		String appenderName = null;
-		Appender appender = null;
-		int nodeListLength = 0;
-		final String NODE_LOGGER= "category";
-		final String NODE_APPENDER = "appender";
+		String resourceFilePath = null;
+		File configurationFile = null;
+		final String XML_FILE_EXTENSION = "xml";
+//		final String JSON_FILE_EXTENSION = "json";
 
 		//===== Check existence of configuration file =====
-		if ((xmlFile=new File(this.resolveResourceFileInClassPath(xmlConfigurationFile))).exists()==true 
-				&& xmlFile.isFile()==true 
-				&& xmlFile.canRead()==true)
+		if ((resourceFilePath=this.resolveResourceFileInClassPath(configurationFilePath))!=null 
+				&& (configurationFile=new File(resourceFilePath)).exists()==true 
+				&& configurationFile.isFile()==true 
+				&& configurationFile.canRead()==true)
 			{
-			try
+			//===== In case of XML file =====
+			if (resourceFilePath.toLowerCase().endsWith(XML_FILE_EXTENSION)==true)
 				{
-				//===== Get "category" nodes =====
-				if ((document=DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlFile))!=null 
-						&& (loggerNodeList=document.getElementsByTagName(NODE_LOGGER))!=null
-						&& (nodeListLength=loggerNodeList.getLength())>0)
-					{
-					//=====  =====
-					for (int i=0; i<nodeListLength; i++)
-						{
-						//=====  =====
-						if ((appenderName=this.parseLoggerNode(loggerNodeList.item(i)))!=null)
-							{
-							break;
-							}
-						//=====  =====
-						else
-							{
-							}
-						}
-					//=====  =====
-					if ((appenderNodeList=document.getElementsByTagName(NODE_APPENDER))!=null 
-							&& (nodeListLength=appenderNodeList.getLength())>0)
-						{
-						//=====  =====
-						for (int i=0; i<nodeListLength; i++)
-							{
-							//=====  =====
-							if ((appender=this.getAppender(appenderName, appenderNodeList.item(i)))!=null)
-								{
-								this.setAppender(appender);
-								return;
-								}
-							//=====  =====
-							else
-								{
-								}
-							}
-						//===== Error handling =====
-						throw new Exception("Failed to get \""+appenderName+"\" node in configuration file(=\""+xmlFile.getCanonicalPath()+"\")");
-						}
-					//===== Error handling =====
-					else if (appenderNodeList==null)
-						{
-						throw new Exception("Failed to get \""+NODE_APPENDER+"\" node in configuration file(=\""+xmlFile.getCanonicalPath()+"\")");
-						}
-					else
-						{
-						throw new Exception("There are no \""+NODE_APPENDER+"\" nodes in configuration file(=\""+xmlFile.getCanonicalPath()+"\")");
-						}
-					}
-				//=====  =====
-				else
-					{
-					throw new Exception("XML parsing error! There isn't \""+NODE_LOGGER+"\" node in indicated file(=\""+xmlFile.getCanonicalPath()+"\")");
-					}
+				//===== Parse XML configuration file =====
+				this.parseXMLConfigurationFile(configurationFile);
+				//===== Update Appender class instance for handling logging procedure =====
+				this.getLogger().addHandler(this.getAppender());
+				return;
 				}
-			//=====  =====
-			catch (Exception e)
+/*
+			//===== In case of JSON file =====
+			else if (resourceFilePath.toLowerCase().endsWith(JSON_FILE_EXTENSION)==true)
 				{
-				throw e;
+				//===== Parse JSON configuration file =====
+				this.parseJSONConfigurationFile(configurationFile);
+				return;
+				}
+*/
+			//===== Error handling =====
+			else
+				{
+				throw new Exception("Argument error! Indicated file(=\""+configurationFile.getCanonicalPath()+"\") includes invalid extension");
 				}
 			}
 		//===== Error handling =====
 		else
 			{
-			try
-				{
-				throw new Exception("Argument error! Indicated xml file(=\""+xmlFile.getCanonicalPath()+"\") doesn't exist");
-				}
-			catch (IOException e)
-				{
-				throw e;
-				}
+			throw new Exception("Argument error! Indicated file(=\""+configurationFile.getCanonicalPath()+"\") doesn't exist");
 			}
 		}
 
@@ -1077,20 +1025,21 @@ public class Logger
 
 
 	/**
+	 * Set indicated logger name into a field variable of this class.<br>
 	 * 
-	 * @param loggerName
+	 * @param loggerName	Logger name
 	 * @throws Exception
 	 */
 	public void setLoggerName (final String loggerName) throws Exception
 		{
-		//=====  =====
+		//===== Check argument =====
 		if (loggerName!=null && loggerName.trim().length()>0)
 			{
-			//=====  =====
+			//===== Set logger name into field variable =====
 			this.loggerName = loggerName;
 			return;
 			}
-		//=====  =====
+		//===== Argument error =====
 		else
 			{
 			throw new Exception("Argument error! Indicated category name is null or empty");
@@ -1391,24 +1340,51 @@ public class Logger
 
 
 	/**
+	 * This method generates new java.util.logging.Logger object in indicated name.<br>
 	 * 
-	 * @return
-	 * @throws Exception
+	 * @param name			Logger name
+	 * @throws Exception	
+	 */
+	protected java.util.logging.Logger createNewLogger (final String name) throws Exception
+		{
+		//========== Variable ==========
+		java.util.logging.Logger logger = null;
+
+		//===== Check argument =====
+		if (name!=null && name.trim().length()>0)
+			{
+			//===== Generate new logger =====
+			logger = java.util.logging.Logger.getLogger(name);
+			//===== Don't use parent logger(=root logger) =====
+			logger.setUseParentHandlers(false);
+			//===== Return generated logger =====
+			return logger;
+			}
+		//===== Argument error =====
+		else
+			{
+			throw new Exception("Argument error! Indicated logger name is null or empty");
+			}
+		}
+
+
+	/**
+	 * This method returns an Appender class instance stored in class field.<br>
+	 * 
+	 * @return				Appender class instance stored in class field
+	 * @throws Exception	General error
 	 */
 	protected Appender getAppender () throws Exception
 		{
-		//========== Variable ==========
-		final Appender APPENDER = this.appender;		// 
-
 		//===== Check appender instance =====
-		if (APPENDER!=null)
+		if (this.appender!=null)
 			{
-			return APPENDER;
+			return this.appender;
 			}
 		//===== Error handling =====
 		else
 			{
-			throw new Exception("Haven't set Appender instance yet");
+			throw new Exception("Configuration error! Haven't set \"Appender\" class instance yet");
 			}
 		}
 
@@ -1494,11 +1470,10 @@ public class Logger
 	 */
 	protected String getLoggerName () throws Exception
 		{
-		final String LOGGER_NAME = this.loggerName;
-
-		if (LOGGER_NAME!=null && LOGGER_NAME.trim().length()>0)
+		//===== Check logger name =====
+		if (this.loggerName!=null && this.loggerName.trim().length()>0)
 			{
-			return LOGGER_NAME;
+			return this.loggerName;
 			}
 		else
 			{
@@ -1514,19 +1489,38 @@ public class Logger
 	 */
 	protected java.util.logging.Logger getLogger () throws Exception
 		{
-		//========== Variable ==========
-		final java.util.logging.Logger LOGGER = this.logger;
-
 		//===== Check logger instance =====
-		if (LOGGER!=null)
+		if (this.logger!=null)
 			{
-			return LOGGER;
+			return this.logger;
 			}
 		//===== Error handling =====
 		else
 			{
 			throw new Exception("Unknown error has happened! Logger instance which generated at constructor is null");
 			}
+		}
+
+
+	/**
+	 * This method constructs a log message appended StackTrame.<br>
+	 * 
+	 * @param message			log message
+	 * @param stackTraceElement	StackTraceElement class object including stack trace information
+	 * @return					constructed message
+	 */
+	protected String getMessage (String message, final StackTraceElement[] stackTraceElement)
+		{
+		//===== Check argument =====
+		if (message!=null)
+			{
+			}
+		//===== Argument error =====
+		else
+			{
+			message = "";
+			}
+		return message+ng.lib.logging.SystemUtil.getLineFeed()+this.getStackTraceElementMessage(stackTraceElement);
 		}
 
 
@@ -1557,95 +1551,87 @@ public class Logger
 				&& (attribute=((Element)node).getAttributeNode(ATTRIBUTE_NAME))!=null 
 				&& (name=attribute.getNodeValue())!=null && name.trim().length()>0)
 			{
-			try
+			//=====  =====
+			if (name.startsWith(LOGGER_NAME)==true)
 				{
 				//=====  =====
-				if (name.startsWith(LOGGER_NAME)==true)
+				if ((childNodeList=node.getChildNodes())!=null && (childNodeListLength=childNodeList.getLength())>0)
 					{
 					//=====  =====
-					if ((childNodeList=node.getChildNodes())!=null && (childNodeListLength=childNodeList.getLength())>0)
+					for (int i=0; i<childNodeListLength; i++)
 						{
 						//=====  =====
-						for (int i=0; i<childNodeListLength; i++)
+						if ((node=childNodeList.item(i))!=null && NODE_PRIORITY.equals(node.getNodeName())==true)
 							{
-							//=====  =====
-							if ((node=childNodeList.item(i))!=null && NODE_PRIORITY.equals(node.getNodeName())==true)
+							//===== Get attribute node =====
+							if ((attribute=((Element)node).getAttributeNode(ATTRIBUTE_VALUE))!=null 
+									&& (level=attribute.getNodeValue())!=null && level.trim().length()>0)
 								{
-								//===== Get attribute node =====
-								if ((attribute=((Element)node).getAttributeNode(ATTRIBUTE_VALUE))!=null 
-										&& (level=attribute.getNodeValue())!=null && level.trim().length()>0)
-									{
-									//===== Set log level =====
-									this.setLevel(Logger.getLogLevel(level));
-									}
-								//===== Error handling =====
-								else if (attribute==null)
-									{
-									throw new Exception("Failed to get \""+ATTRIBUTE_VALUE+"\" attribute node in \""+node.getNodeName()+"\" node");
-									}
-								else
-									{
-									throw new Exception("Failed to get \""+ATTRIBUTE_VALUE+"\" attribute value in \""+node.getNodeName()+"\" node");
-									}
+								//===== Set log level =====
+								this.setLevel(Logger.getLogLevel(level));
 								}
-							//=====  =====
-							else if ((node=childNodeList.item(i))!=null && NODE_APPENDER_REF.equals(node.getNodeName())==true)
+							//===== Error handling =====
+							else if (attribute==null)
 								{
-								//=====  =====
-								if ((attribute=((Element)node).getAttributeNode(ATTRIBUTE_REF))!=null 
-										&& (appenderName=attribute.getNodeValue())!=null && appenderName.trim().length()>0)
-									{
-									break;
-									}
-								//===== Error handling =====
-								else if (attribute==null)
-									{
-									throw new Exception("Failed to get \""+ATTRIBUTE_REF+"\" attribute node in \""+node.getNodeName()+"\" node");
-									}
-								else
-									{
-									throw new Exception("Failed to get \""+ATTRIBUTE_REF+"\" attribute value in \""+node.getNodeName()+"\" node");
-									}
+								throw new Exception("Failed to get \""+ATTRIBUTE_VALUE+"\" attribute node in \""+node.getNodeName()+"\" node");
 								}
-							//=====  =====
 							else
 								{
+								throw new Exception("Failed to get \""+ATTRIBUTE_VALUE+"\" attribute value in \""+node.getNodeName()+"\" node");
 								}
 							}
-						//===== Check the result =====
-						if (this.getLevel()!=null && appenderName!=null)
+						//=====  =====
+						else if ((node=childNodeList.item(i))!=null && NODE_APPENDER_REF.equals(node.getNodeName())==true)
 							{
-							//===== Set category name =====
-							this.setLoggerName(name);
-							//===== Terminate procedure =====
-							return appenderName;
+							//=====  =====
+							if ((attribute=((Element)node).getAttributeNode(ATTRIBUTE_REF))!=null 
+									&& (appenderName=attribute.getNodeValue())!=null && appenderName.trim().length()>0)
+								{
+								break;
+								}
+							//===== Error handling =====
+							else if (attribute==null)
+								{
+								throw new Exception("Failed to get \""+ATTRIBUTE_REF+"\" attribute node in \""+node.getNodeName()+"\" node");
+								}
+							else
+								{
+								throw new Exception("Failed to get \""+ATTRIBUTE_REF+"\" attribute value in \""+node.getNodeName()+"\" node");
+								}
 							}
-						//===== Error handling =====
-						else if (appenderName==null)
-							{
-							throw new Exception("Failed to get \""+ATTRIBUTE_REF+"\" attribute value in \""+node.getNodeName()+"\" node");
-							}
+						//=====  =====
 						else
 							{
-							throw new Exception("Failed to get \""+ATTRIBUTE_VALUE+"\" attribute value in \""+node.getNodeName()+"\" node");
 							}
 						}
+					//===== Check the result =====
+					if (this.getLevel()!=null && appenderName!=null)
+						{
+						//===== Set category name =====
+						this.setLoggerName(name);
+						//===== Terminate procedure =====
+						return appenderName;
+						}
 					//===== Error handling =====
+					else if (appenderName==null)
+						{
+						throw new Exception("Failed to get \""+ATTRIBUTE_REF+"\" attribute value in \""+node.getNodeName()+"\" node");
+						}
 					else
 						{
-						throw new Exception("Configuration error! \""+node.getNodeName()+"\" node doesn't have child nodes");
+						throw new Exception("Failed to get \""+ATTRIBUTE_VALUE+"\" attribute value in \""+node.getNodeName()+"\" node");
 						}
 					}
-				//=====  =====
+				//===== Error handling =====
 				else
 					{
-					return null;
+					throw new Exception("Configuration error! \""+node.getNodeName()+"\" node doesn't have child nodes");
 					}
 				}
-				//===== Error handling =====
-			catch (Exception e)
+			//=====  =====
+			else
 				{
-				throw e;
+				return null;
 				}
 			}
 		//===== Argument error =====
@@ -1665,58 +1651,77 @@ public class Logger
 
 
 	/**
-	 * This method generates new java.util.logging.Logger object indicated name.<br>
-	 * And set it into field object.<br>
 	 * 
-	 * @param name					logger name
-	 * @throws Exception	
+	 * @param xmlConfigurationFile
+	 * @throws Exception
 	 */
-	protected void setLogger (final String name) throws Exception
+	protected void parseXMLConfigurationFile (final File xmlConfigurationFile) throws Exception
 		{
-		try
+		//========== Variable ==========
+		Document document = null;
+		NodeList loggerNodeList = null;
+		NodeList appenderNodeList = null;
+		String appenderName = null;
+		Appender appender = null;
+		int nodeListLength = 0;
+		final String NODE_LOGGER= "category";
+		final String NODE_APPENDER = "appender";
+
+		//===== Get "category" nodes =====
+		if ((document=DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlConfigurationFile))!=null 
+				&& (loggerNodeList=document.getElementsByTagName(NODE_LOGGER))!=null
+				&& (nodeListLength=loggerNodeList.getLength())>0)
 			{
-			//===== Generate new logger =====
-			if (name!=null && name.trim().length()>0 
-					&& (this.logger=java.util.logging.Logger.getLogger(name))!=null)
+			//===== Repeat while the node exists =====
+			for (int i=0; i<nodeListLength; i++)
 				{
-				//===== Don't use parent logger(=root logger) =====
-				this.logger.setUseParentHandlers(false);
-				//===== Terminate procedure =====
-				return;
+				//===== Get appender name from XML configuration node =====
+				if ((appenderName=this.parseLoggerNode(loggerNodeList.item(i)))!=null)
+					{
+					break;
+					}
+				//===== Error handling =====
+				else
+					{
+					}
 				}
-			//===== Argument error =====
+			//===== Get node set from XML configuration node =====
+			if ((appenderNodeList=document.getElementsByTagName(NODE_APPENDER))!=null 
+					&& (nodeListLength=appenderNodeList.getLength())>0)
+				{
+				//===== Repeat while the node exists =====
+				for (int i=0; i<nodeListLength; i++)
+					{
+					//===== Set-up Appender class object with XML configuration node =====
+					if ((appender=this.getAppender(appenderName, appenderNodeList.item(i)))!=null)
+						{
+						//===== Store into field variable of this class =====
+						this.setAppender(appender);
+						return;
+						}
+					//===== Error handling =====
+					else
+						{
+						}
+					}
+				//===== Error handling =====
+				throw new Exception("Failed to get \""+appenderName+"\" node in configuration file(=\""+xmlConfigurationFile.getCanonicalPath()+"\")");
+				}
+			//===== Error handling =====
+			else if (appenderNodeList==null)
+				{
+				throw new Exception("Failed to get \""+NODE_APPENDER+"\" node in configuration file(=\""+xmlConfigurationFile.getCanonicalPath()+"\")");
+				}
 			else
 				{
-				throw new Exception("Argument error! Indicated logger name is null or empty");
+				throw new Exception("There are no \""+NODE_APPENDER+"\" nodes in configuration file(=\""+xmlConfigurationFile.getCanonicalPath()+"\")");
 				}
 			}
-		//===== Error handling =====
-		catch (Exception e)
-			{
-			throw e;
-			}
-		}
-
-
-	/**
-	 * This method constructs a log message appended StackTrame.<br>
-	 * 
-	 * @param message			log message
-	 * @param stackTraceElement	StackTraceElement class object including stack trace information
-	 * @return					constructed message
-	 */
-	private final String getMessage (String message, final StackTraceElement[] stackTraceElement)
-		{
-		//===== Check argument =====
-		if (message!=null)
-			{
-			}
-		//===== Argument error =====
+		//=====  =====
 		else
 			{
-			message = "";
+			throw new Exception("XML parsing error! There isn't \""+NODE_LOGGER+"\" node in indicated file(=\""+xmlConfigurationFile.getCanonicalPath()+"\")");
 			}
-		return message+ng.lib.logging.SystemUtil.getLineFeed()+this.getStackTraceElementMessage(stackTraceElement);
 		}
 
 
@@ -1727,33 +1732,46 @@ public class Logger
 	 * @return					the file pathname string in class path
 	 * @throws Exception		
 	 */
-	private final String resolveResourceFileInClassPath (final String resourceFilePath) throws Exception
+	protected String resolveResourceFileInClassPath (final String resourceFilePath) throws Exception
 		{
 		//========== Variable ==========
 		URL url = null;
 		File file = null;
 
-		try
+		//===== Get URL of the file =====
+		if ((url=this.getClass().getClassLoader().getResource(resourceFilePath))!=null 
+				&& (file=new File(new URI(url.toString()))).exists()==true 
+				&& file.isFile()==true 
+				&& file.canRead()==true)
 			{
-			//===== Get URL of the file =====
-			if ((url=getClass().getClassLoader().getResource(resourceFilePath))!=null 
-					&& (file=new File(new URI(url.toString()))).exists()==true 
-					&& file.isFile()==true 
-					&& file.canRead()==true)
-				{
-				//===== Return the file pathname string =====
-				return file.getCanonicalPath();
-				}
-			//===== Error handling =====
-			else
-				{
-				throw new Exception("Failed to resolve the file(=\""+resourceFilePath+"\") in classpath(=\""+System.getProperty("java.class.path")+"\")");
-				}
+			//===== Return the file pathname string =====
+			return file.getCanonicalPath();
 			}
 		//===== Error handling =====
-		catch (Exception e)
+		else
 			{
-			throw e;
+			throw new Exception("Failed to resolve the file(=\""+resourceFilePath+"\") in classpath(=\""+System.getProperty("java.class.path")+"\")");
+			}
+		}
+
+
+	/**
+	 * 
+	 * @param logger
+	 * @throws Exception
+	 */
+	protected void setLogger (final java.util.logging.Logger logger) throws Exception
+		{
+		//===== Check argument =====
+		if (logger!=null)
+			{
+			this.logger = logger;
+			return;
+			}
+		//===== Argument error =====
+		else
+			{
+			throw new Exception("Argument error! Indicated \"java.util.logging.Logger\" class object is null");
 			}
 		}
 	}

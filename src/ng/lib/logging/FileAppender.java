@@ -79,13 +79,13 @@ public class FileAppender extends Appender
 	 * This method creates new logging configuration file which is standard<br>
 	 * setting.<br>
 	 * 
-	 * @param directory				directory which set on log file
-	 * @param logFileName			log file name
-	 * @param loggerName			logger name
-	 * @param configFile			logging configuration file(for output)
-	 * @param format				true : output formatted XML string, false : not formatted
-	 * @return						canonical path of logging configuration file
-	 * @throws Exception	
+	 * @param directory		Directory which set on log file
+	 * @param logFileName	Log file name
+	 * @param loggerName	Logger name
+	 * @param configFile	Logging configuration file(for output)
+	 * @param format		true : output formatted XML string, false : not formatted
+	 * @return				Canonical path of logging configuration file
+	 * @throws Exception	General error
 	 */
 	public static String createNewLogConfigFile (final File directory, final String logFileName, final String loggerName, final File configFile, final boolean format) throws Exception
 		{
@@ -216,7 +216,7 @@ public class FileAppender extends Appender
 
 	/**
 	 * 
-	 * @exception SecurityException
+	 * @exception SecurityException	General error
 	 */
 	@Override
 	public void close () throws SecurityException
@@ -287,7 +287,7 @@ public class FileAppender extends Appender
 	/**
 	 * 
 	 * @param node						
-	 * @exception NextGraFixException	
+	 * @exception Exception	General error
 	 */
 	@Override
 	public void parseAppenderNode (Node node) throws Exception
@@ -343,7 +343,7 @@ public class FileAppender extends Appender
 	/**
 	 * 
 	 * @param paramNode
-	 * @throws NextGraFixException
+	 * @throws Exception	General error
 	 */
 	@Override
 	public void parseParamNode (final Node paramNode) throws Exception
@@ -417,8 +417,10 @@ public class FileAppender extends Appender
 					//===== Set character code =====
 					this.setEncoding(value);
 					}
+				//===== Error handling =====
 				catch (Exception e)
 					{
+					e.printStackTrace();
 					}
 				//===== Terminate procedure =====
 				return;
@@ -428,17 +430,23 @@ public class FileAppender extends Appender
 				{
 				try
 					{
+					//===== In case of not existing the log file =====
 					if ((this.file=(new File(value))).exists()==false || this.file.isFile()==false)
 						{
+						//===== Generate new parent directory =====
 						ng.lib.logging.SystemUtil.getParentDirectory(this.file).mkdirs();
+						//===== Generate a log file =====
 						this.file.createNewFile();
 						}
+					//===== In case of existing the log file =====
 					else
 						{
 						}
 					}
+				//===== Error handling =====
 				catch (Exception e)
 					{
+					e.printStackTrace();
 					}
 				//===== Terminate procedure =====
 				return;
@@ -464,8 +472,10 @@ public class FileAppender extends Appender
 					{
 					this.maxBuckupIndex = Integer.parseInt(value);
 					}
+				//===== Error handling =====
 				catch (Exception e)
 					{
+					e.printStackTrace();
 					}
 				//===== Terminate procedure =====
 				return;
@@ -477,8 +487,10 @@ public class FileAppender extends Appender
 					{
 					this.maxFileSize = ng.lib.logging.SystemUtil.convertDataSize(value).longValue();
 					}
+				//===== Error handling =====
 				catch (Exception e)
 					{
+					e.printStackTrace();
 					}
 				}
 			//===== In the case of log level threshold setting =====
@@ -488,8 +500,10 @@ public class FileAppender extends Appender
 					{
 					this.setLevel(Logger.convertLogLevel(Logger.getLogLevel(value)));
 					}
+				//===== Error handling =====
 				catch (Exception e)
 					{
+					e.printStackTrace();
 					}
 				//===== Terminate procedure =====
 				return;
@@ -579,7 +593,7 @@ public class FileAppender extends Appender
 
 	/**
 	 * 
-	 * @throws Exception
+	 * @throws Exception	General error
 	 */
 	private final void closeBufferedWriter () throws Exception
 		{
@@ -614,7 +628,7 @@ public class FileAppender extends Appender
 	/**
 	 * 
 	 * @return
-	 * @throws NextGraFixException
+	 * @throws Exception	General error
 	 */
 	private final BufferedWriter getBufferedWriter () throws Exception
 		{
@@ -628,13 +642,16 @@ public class FileAppender extends Appender
 			{
 			try
 				{
-				//===== Open new output stream =====
+				//===== In case of indicated output buffer size =====
 				if (this.maxBufferSize>0)
 					{
+					//===== Open new output stream with fixed output buffer size =====
 					return (this.bufferedWriter=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(this.getFile(), this.append), this.getEncoding()), this.maxBufferSize));
 					}
+				//===== In case of not indicated output buffer size =====
 				else
 					{
+					//===== Open new output stream with default output buffer size =====
 					return (this.bufferedWriter=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(this.getFile(), this.append), this.getEncoding())));
 					}
 				}
@@ -650,19 +667,19 @@ public class FileAppender extends Appender
 	/**
 	 * 
 	 * @return
-	 * @throws NextGraFixException
+	 * @throws Exception	General error
 	 */
 	private final File getFile () throws Exception
 		{
-		//===== Check argument =====
+		//===== Check the exists of class field =====
 		if (this.file!=null)
 			{
 			return this.file;
 			}
-		//===== Argument error =====
+		//===== Error handling =====
 		else
 			{
-			throw new Exception("Configuration error! Log file path isn't indicated");
+			throw new Exception("Configuration error! \"File\" class object stored in class field is null");
 			}
 		}
 
@@ -670,7 +687,7 @@ public class FileAppender extends Appender
 	/**
 	 * 
 	 * @return
-	 * @throws NextGraFixException
+	 * @throws Exception	General error
 	 */
 	private final long getFileSize () throws Exception
 		{
@@ -688,7 +705,7 @@ public class FileAppender extends Appender
 
 	/**
 	 * 
-	 * @throws NextGraFixException
+	 * @throws Exception	General error
 	 */
 	private final void initializeFileSize () throws Exception
 		{
@@ -699,7 +716,7 @@ public class FileAppender extends Appender
 
 	/**
 	 * 
-	 * @throws NextGraFixException
+	 * @throws Exception	General error
 	 */
 	private final void rotate () throws Exception
 		{
@@ -814,7 +831,7 @@ public class FileAppender extends Appender
 	/**
 	 * 
 	 * @param fileSize
-	 * @throws Exception
+	 * @throws Exception	General error
 	 */
 	private final void setFileSize (final long fileSize) throws Exception
 		{
