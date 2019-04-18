@@ -142,7 +142,16 @@ public class FileAppender extends Appender
 			layout.setAttribute("class", "ng.lib.logging.PatternLayout");
 			param = document.createElement("param");
 			param.setAttribute("name", "ConversionPattern");
-			param.setAttribute("value", "[%d][%5p][%C][%c{1}][%l][%M][%L][%r][%m]%n");
+			// %d: date
+			// %5p: log level
+			// %C: category
+			// %c: category
+			// %l: =%C.%M(%F:%L)
+			// %M: method name
+			// %L: line number
+			// %r: total time
+			// %m: log message
+			param.setAttribute("value", "[%d][%5p]"+/*"[%C][%c{1}]"+*/"[%l]"+/*"[%M][%L][%r]"+*/"[%m]%n");
 			layout.appendChild(param);
 			appender.appendChild(layout);
 			root.appendChild(appender);
@@ -159,15 +168,17 @@ public class FileAppender extends Appender
 			//===== Convert DOM to XML =====
 			domSource = new DOMSource(document);
 			TransformerFactory.newInstance().newTransformer().transform(domSource, new StreamResult(stringWriter=new StringWriter()));
+			//===== In case of XML format =====
 			if (format==true)
 				{
 				xml = FileAppender.formatXML(stringWriter.toString());
 				}
+			//===== In case of row text =====
 			else
 				{
 				xml = stringWriter.toString();
 				}
-			//===== Initialize creation file =====
+			//===== In case of initializing the creation of file =====
 			if (configFile.exists()==true && configFile.isFile()==true)
 				{
 				FileAppender.deleteFile(configFile);
@@ -189,7 +200,6 @@ public class FileAppender extends Appender
 			}
 		finally
 			{
-			//=====  =====
 			if (stringWriter!=null)
 				{
 				try
@@ -218,7 +228,6 @@ public class FileAppender extends Appender
 				}
 			}
 		}
-
 
 
 	/**
