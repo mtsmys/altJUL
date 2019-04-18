@@ -907,6 +907,8 @@ public class Logger
 			{
 			//===== Set appender into java.util.logging.Logger =====
 			this.appender = appender;
+			//===== Update Appender class instance for handling logging procedure =====
+			this.getLogger().addHandler(this.appender);
 			return;
 			}
 		//===== Argument error =====
@@ -926,29 +928,28 @@ public class Logger
 	public void setConfigurationFile (final String configurationFilePath) throws Exception
 		{
 		//========== Variable ==========
-		String resourceFilePath = null;
 		File configurationFile = null;
+		Appender appender = null;
 		final String XML_FILE_EXTENSION = "xml";
 //		final String JSON_FILE_EXTENSION = "json";
 
 		//===== Check existence of configuration file =====
-		if ((resourceFilePath=this.resolveResourceFileInClassPath(configurationFilePath))!=null 
-				&& (configurationFile=new File(resourceFilePath)).exists()==true 
+		if ((configurationFile=this.resolveResourceFile(configurationFilePath)).exists()==true 
 				&& configurationFile.isFile()==true 
 				&& configurationFile.canRead()==true)
 			{
 			//===== In case of XML file =====
-			if (resourceFilePath.toLowerCase().endsWith(XML_FILE_EXTENSION)==true)
+			if (configurationFile.getCanonicalPath().toLowerCase().endsWith(XML_FILE_EXTENSION)==true)
 				{
 				//===== Parse XML configuration file =====
-				this.parseXMLConfigurationFile(configurationFile);
-				//===== Update Appender class instance for handling logging procedure =====
-				this.getLogger().addHandler(this.getAppender());
+				appender = this.parseXMLConfigurationFile(configurationFile);
+				//===== Store into field variable of this class =====
+				this.setAppender(appender);
 				return;
 				}
 /*
 			//===== In case of JSON file =====
-			else if (resourceFilePath.toLowerCase().endsWith(JSON_FILE_EXTENSION)==true)
+			else if (configurationFile.getCanonicalPath().toLowerCase().endsWith(JSON_FILE_EXTENSION)==true)
 				{
 				//===== Parse JSON configuration file =====
 				this.parseJSONConfigurationFile(configurationFile);
@@ -1653,9 +1654,10 @@ public class Logger
 	/**
 	 * 
 	 * @param xmlConfigurationFile
+	 * @return
 	 * @throws Exception
 	 */
-	protected void parseXMLConfigurationFile (final File xmlConfigurationFile) throws Exception
+	protected Appender parseXMLConfigurationFile (final File xmlConfigurationFile) throws Exception
 		{
 		//========== Variable ==========
 		Document document = null;
@@ -1695,9 +1697,7 @@ public class Logger
 					//===== Set-up Appender class object with XML configuration node =====
 					if ((appender=this.getAppender(appenderName, appenderNodeList.item(i)))!=null)
 						{
-						//===== Store into field variable of this class =====
-						this.setAppender(appender);
-						return;
+						return appender;
 						}
 					//===== Error handling =====
 					else
@@ -1728,29 +1728,56 @@ public class Logger
 	/**
 	 * Search & detect the indicated file in class path and return the file path
 	 * 
-	 * @param resourceFilePath	a target file pathname in class path
-	 * @return					the file pathname string in class path
-	 * @throws Exception		
+	 * @param resourceFilePath	A target file pathname in class path
+	 * @return					The file pathname string in class path
+	 * @throws Exception		General error
 	 */
-	protected String resolveResourceFileInClassPath (final String resourceFilePath) throws Exception
+	protected File resolveResourceFile (final String resourceFilePath) throws Exception
 		{
 		//========== Variable ==========
 		URL url = null;
-		File file = null;
+		URI uri = null;
+		File resourceFile = null;
+		final String FILE_SCHEME = "file://";
+		final String SLASH = "/";
+		final String OS = System.getProperty("os.name").toLowerCase();
+		final String WINDOWS = "windows";
 
-		//===== Get URL of the file =====
-		if ((url=this.getClass().getClassLoader().getResource(resourceFilePath))!=null 
-				&& (file=new File(new URI(url.toString()))).exists()==true 
-				&& file.isFile()==true 
-				&& file.canRead()==true)
+		try
 			{
-			//===== Return the file pathname string =====
-			return file.getCanonicalPath();
+			//===== Get file path on class path =====
+			if ((url=this.getClass().getClassLoader().getResource(resourceFilePath))!=null 
+					&& (uri=url.toURI())!=null 
+					&& (resourceFile=new File(uri)).exists()==true 
+					&& resourceFile.isFile()==true 
+					&& resourceFile.canRead()==true
+					)
+				{
+				//===== Return the file pathname string =====
+				return resourceFile;
+				}
+			//===== Get file path from URI =====
+			else if (((OS.contains(WINDOWS)==true && (url=new URL(FILE_SCHEME+SLASH+resourceFilePath))!=null) 
+							|| (url=new URL(FILE_SCHEME+resourceFilePath))!=null)
+					&& (uri=url.toURI())!=null 
+					&& (resourceFile=new File(uri)).exists()==true 
+					&& resourceFile.isFile()==true 
+					&& resourceFile.canRead()==true 
+					)
+				{
+				//===== Return the file pathname string =====
+				return resourceFile;
+				}
+			//===== Error handling =====
+			else
+				{
+				throw new Exception("Failed to resolve the file(=\""+resourceFilePath+"\") in classpath(=\""+System.getProperty("java.class.path")+"\")");
+				}
 			}
 		//===== Error handling =====
-		else
+		catch (Exception e)
 			{
-			throw new Exception("Failed to resolve the file(=\""+resourceFilePath+"\") in classpath(=\""+System.getProperty("java.class.path")+"\")");
+			throw new Exception("\""+url.getPath()+"\" is invalid resource expression");
 			}
 		}
 
