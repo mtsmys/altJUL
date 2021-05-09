@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="altJUL" default="dist" basedir=".">
+	<description></description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src"></property>
+	<property name="build" location="build"></property>
+	<property name="dist"  location="dist"></property>
+	<property name="lib" location="lib"></property>
+	<property name="resource" location="res"></property>
+	<property name="jarName" location="altjul-0.1.2.jar"></property>
+	<property name="JSONParser" location="C:/home/mtsmys/Program/Java/JSONParser"></property>
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp></tstamp>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"></mkdir>
+	</target>
+
+	<target name="compile" depends="init" description="compile source files">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac 
+		    debug="true" 
+		    destdir="${build}" 
+		    encoding="UTF-8" 
+		    includeantruntime="false" 
+		    srcdir="${JSONParser}/src;${src}" 
+		    >
+		</javac>
+	</target>
+
+	<target name="copy" depends="compile">
+	</target>
+
+	<target name="dist" depends="copy" description="Generate a distribution file">
+ 		<!-- Create the distribution directory 
+ 		<mkdir dir="${dist}/lib"></mkdir>
+ 		-->
+ 		<!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+		<jar 
+		    jarfile="${jarName}" 
+		    basedir="${build}" 
+			manifest="${src}/META-INF/MANIFEST.MF">
+<!--  
+			<fileset dir="${resource}" includes="*.png"></fileset>
+-->
+		</jar>
+		<delete dir="${build}"></delete>
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}"></delete>
+		<delete dir="${dist}"></delete>
+	</target>
+</project>
